@@ -6,10 +6,18 @@ from dotenv import load_dotenv
 import os
 
 load_dotenv()
-GROQ_API_KEY = os.getenv("GROQ_API_KEY")
-LANGCHAIN_API_KEY = os.getenv("LANGCHAIN_API_KEY")
-LANGCHAIN_PROJECT = os.getenv("LANGCHAIN_PROJECT")
+# GROQ_API_KEY = os.getenv("GROQ_API_KEY")
+# LANGCHAIN_API_KEY = os.getenv("LANGCHAIN_API_KEY")
+# LANGCHAIN_PROJECT = os.getenv("LANGCHAIN_PROJECT")
 os.environ['LANGCHAIN_TRACING_V2'] = 'true'
+
+GROQ_API_KEY = st.secrets['GROQ_API_KEY']
+LANGCHAIN_API_KEY = st.secrets['LANGCHAIN_API_KEY']
+LANGCHAIN_PROJECT = st.secrets['LANGCHAIN_PROJECT']
+
+os.environ['GROQ_API_KEY'] = GROQ_API_KEY
+os.environ['LANGCHAIN_API_KEY'] = LANGCHAIN_API_KEY
+os.environ['LANGCHAIN_PROJECT'] = LANGCHAIN_PROJECT
 
 from langchain_community.chat_message_histories import ChatMessageHistory
 from langchain_core.chat_history import BaseChatMessageHistory

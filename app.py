@@ -92,11 +92,11 @@ max_tokens = st.sidebar.slider("Maximum Tokens", min_value=100, max_value=1000, 
 st.write("Go ahead and ask the question:")
 
 # Use the session state to control the text input
-question = st.text_input("Question:", value=st.session_state.question, key="question")
+st.session_state.question = st.text_input("Question:", value=st.session_state.question)
 
-if question:
-    response = generate_response(question, temp, max_tokens, llm)
+if st.session_state.question:
+    response = generate_response(st.session_state.question, temp, max_tokens, llm)
     st.write(response)
-    st.session_state.question = ""  # Clear the text input after response
+    st.session_state.question = ""
 else:
     st.write("Please enter a question")

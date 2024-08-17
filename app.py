@@ -24,6 +24,9 @@ if 'store' not in st.session_state:
 if 'id' not in st.session_state:
     st.session_state.id = 0
 
+if 'question' not in st.session_state:
+    st.session_state.question = ""
+
 def get_session_history(session_id: str) -> BaseChatMessageHistory:
     if session_id not in st.session_state.store:
         st.session_state.store[session_id] = ChatMessageHistory()
@@ -39,10 +42,12 @@ prompt = ChatPromptTemplate.from_messages(
 
 def increase_id():
     st.session_state.id += 1
+    st.session_state.question = ""  # Clear the text input
 
 def decrease_id():
     if st.session_state.id > 0:
         st.session_state.id -= 1
+        st.session_state.question = ""  # Clear the text input
 
 def generate_response(question, temp, max_tokens, llm="llama3-70b-8192"):
     config = {"configurable": {"session_id": f"Q{st.session_state.id}"}}
@@ -74,13 +79,15 @@ with col2:
 llm = st.sidebar.selectbox("Select an Open source LLM Model:", ["llama3-70b-8192", "llama3-8b-8192", "gemma2-9b-it", "gemma-7b-it"])
 
 temp = st.sidebar.slider("Temperature", min_value=0.0, max_value=1.0, value=0.7)
-max_tokens = st.sidebar.slider("Maximum Tokens", min_value=100, max_value=1000, value=300)
+max_tokens = st.sidebar.slider("Maximum Tokens", min_value=100, max_value=1000, value=150)
 
 st.write("Go ahead and ask the question:")
-question = st.text_input("Question:")
 
-if question:
-    response = generate_response(question, temp, max_tokens, llm)
+# Use the session state to control the text input
+st.session_state.question = st.text_input("Question:", value=st.session_state.question)
+
+if st.session_state.question:
+    response = generate_response(st.session_state.question, temp, max_tokens, llm)
     st.write(response)
 else:
     st.write("Please enter a question")

@@ -97,6 +97,6 @@ st.session_state.question = st.text_input("Question:", value=st.session_state.qu
 if st.session_state.question:
     response = generate_response(st.session_state.question, temp, max_tokens, llm)
     st.write(response)
-    st.session_state.question = ""
+    # st.session_state.question = ""
 else:
     st.write("Please enter a question")

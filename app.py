@@ -6,11 +6,8 @@ from dotenv import load_dotenv
 import os
 
 load_dotenv()
-# GROQ_API_KEY = os.getenv("GROQ_API_KEY")
-# LANGCHAIN_API_KEY = os.getenv("LANGCHAIN_API_KEY")
-# LANGCHAIN_PROJECT = os.getenv("LANGCHAIN_PROJECT")
-os.environ['LANGCHAIN_TRACING_V2'] = 'true'
 
+# Use Streamlit secrets for sensitive data
 GROQ_API_KEY = st.secrets['GROQ_API_KEY']
 LANGCHAIN_API_KEY = st.secrets['LANGCHAIN_API_KEY']
 LANGCHAIN_PROJECT = st.secrets['LANGCHAIN_PROJECT']
@@ -18,6 +15,7 @@ LANGCHAIN_PROJECT = st.secrets['LANGCHAIN_PROJECT']
 os.environ['GROQ_API_KEY'] = GROQ_API_KEY
 os.environ['LANGCHAIN_API_KEY'] = LANGCHAIN_API_KEY
 os.environ['LANGCHAIN_PROJECT'] = LANGCHAIN_PROJECT
+os.environ['LANGCHAIN_TRACING_V2'] = 'true'
 
 from langchain_community.chat_message_histories import ChatMessageHistory
 from langchain_core.chat_history import BaseChatMessageHistory
@@ -35,6 +33,9 @@ if 'id' not in st.session_state:
 if 'question' not in st.session_state:
     st.session_state.question = ""
 
+if 'response' not in st.session_state:
+    st.session_state.response = None
+
 def get_session_history(session_id: str) -> BaseChatMessageHistory:
     if session_id not in st.session_state.store:
         st.session_state.store[session_id] = ChatMessageHistory()
@@ -51,11 +52,13 @@ prompt = ChatPromptTemplate.from_messages(
 def increase_id():
     st.session_state.id += 1
     st.session_state.question = ""  # Clear the text input
+    st.session_state.response = None  # Clear the response
 
 def decrease_id():
     if st.session_state.id > 0:
         st.session_state.id -= 1
         st.session_state.question = ""  # Clear the text input
+        st.session_state.response = None  # Clear the response
 
 def generate_response(question, temp, max_tokens, llm="llama3-70b-8192"):
     config = {"configurable": {"session_id": f"Q{st.session_state.id}"}}
@@ -95,8 +98,9 @@ st.write("Go ahead and ask the question:")
 st.session_state.question = st.text_input("Question:", value=st.session_state.question)
 
 if st.session_state.question:
-    response = generate_response(st.session_state.question, temp, max_tokens, llm)
-    st.write(response)
-    # st.session_state.question = ""
-else:
-    st.write("Please enter a question")
+    st.session_state.response = generate_response(st.session_state.question, temp, max_tokens, llm)
+    st.session_state.question = ""
+
+# Conditionally render the response if it's available
+if st.session_state.response:
+    st.write(st.session_state.response)
